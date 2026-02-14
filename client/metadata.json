@@ -1,0 +1,8 @@
+
+{
+  "name": "StudySync",
+  "description": "A comprehensive student-focused study platform featuring AI notes generation, question paper creation, and study tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
