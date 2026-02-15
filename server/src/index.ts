@@ -38,14 +38,34 @@ app.get("/", (req, res) => {
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/studysync";
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      family: 4, // Force IPv4 to avoid Node.js v17+ IPv6 issues with Atlas
     });
-  })
-  .catch((err) => {
+    console.log("Connected to MongoDB");
+  } catch (err: any) {
     console.error("Failed to connect to MongoDB", err);
+    if (
+      err.message &&
+      (err.message.includes("SSL") || err.message.includes("TLS"))
+    ) {
+      console.error(
+        "⚠️  POSSIBLE CAUSE: Your IP Address might not be whitelisted in MongoDB Atlas or there is a local firewall issue.",
+      );
+    }
+    // Retry logic could be added here, but usually best to fail fast in dev
+    // process.exit(1);
+  }
+};
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
