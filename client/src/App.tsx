@@ -230,7 +230,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50 pb-safe">
+    <div className="min-h-screen flex bg-gray-50 pb-safe overflow-x-hidden">
       {!isAuthenticated ? (
         <Login
           onLogin={handleLogin}

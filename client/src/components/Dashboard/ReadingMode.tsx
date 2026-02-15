@@ -21,7 +21,7 @@ const ReadingMode: React.FC<ReadingModeProps> = ({ note, onBack }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-100 transition-colors duration-300 overflow-y-auto ${darkMode ? "bg-gray-950 text-gray-100" : "bg-white text-gray-900"}`}
+      className={`fixed inset-0 z-100 transition-colors duration-300 overflow-y-auto overscroll-contain ${darkMode ? "bg-gray-950 text-gray-100" : "bg-white text-gray-900"}`}
     >
       {/* Reader Header */}
       <header

@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-linear-to-b from-indigo-600 to-purple-700 text-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 pt-safe ${
+        className={`fixed top-0 left-0 h-full w-64 bg-linear-to-b from-indigo-600 to-purple-700 text-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 pt-safe flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <p className="text-indigo-100 text-sm mt-1">Smart Study Companion</p>
         </div>
 
-        <nav className="mt-4 px-4 space-y-1">
+        <nav className="mt-4 px-4 space-y-1 flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </nav>
 
-        <div className="absolute bottom-0 left-0 w-full p-6 pb-safe">
+        <div className="p-6 pb-safe shrink-0">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-white border border-white/20">
             <p className="text-xs font-medium opacity-80 mb-1">PRO PLAN</p>
             <p className="text-sm font-bold mb-3">Unlimited AI Notes</p>

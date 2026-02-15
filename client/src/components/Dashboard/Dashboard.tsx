@@ -239,7 +239,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="max-w-400 mx-auto p-6 md:p-10 space-y-8">
+      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
         {/* Hero Header */}
         <div className="relative overflow-hidden bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl">
           {/* Decorative Elements */}

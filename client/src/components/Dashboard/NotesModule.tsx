@@ -697,7 +697,7 @@ const NotesModule: React.FC<NotesModuleProps> = ({
                 </button>
               </div>
             </div>
-            <div className="p-6 space-y-4 max-h-[calc(90vh-200px)] overflow-y-auto">
+            <div className="p-6 space-y-4 max-h-[calc(90vh-200px)] overflow-y-auto overscroll-contain">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Title
