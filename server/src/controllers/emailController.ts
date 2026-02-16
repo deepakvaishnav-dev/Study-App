@@ -93,13 +93,19 @@ export const emailController = {
 
       // Create Nodemailer transporter with Gmail
       // Create Nodemailer transporter with Gmail Service (handles ports/secure automatically)
-      console.log("📮 Creating email transporter (service: gmail)...");
+      console.log("📮 Creating email transporter (SMTP:587)...");
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // Must be false for STARTTLS
         auth: {
           user: gmailUser,
-          pass: gmailAppPassword?.replace(/\s/g, ""), // Strip spaces
+          pass: gmailAppPassword?.replace(/\s/g, ""),
         },
+        tls: {
+          rejectUnauthorized: false, // Helps with some strict firewalls, though ideally true
+        },
+        connectionTimeout: 10000, // 10s timeout
       });
 
       // Send email
@@ -152,13 +158,16 @@ export const emailController = {
         });
       }
 
-      console.log("🔍 Verifying email connection...");
+      console.log("🔍 Verifying email connection (SMTP:587)...");
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
         auth: {
           user: gmailUser,
           pass: gmailAppPassword?.replace(/\s/g, ""),
         },
+        connectionTimeout: 10000,
       });
 
       await transporter.verify();
