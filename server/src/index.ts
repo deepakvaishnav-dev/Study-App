@@ -2,6 +2,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import dns from "dns";
+
+// Force IPv4 resolution to fix Render ENETUNREACH errors with Gmail
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 import authRoutes from "./routes/authRoutes";
 import noteRoutes from "./routes/noteRoutes";
