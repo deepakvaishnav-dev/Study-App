@@ -103,10 +103,11 @@ export const emailController = {
           pass: gmailAppPassword?.replace(/\s/g, ""),
         },
         tls: {
-          rejectUnauthorized: false, // Helps with some strict firewalls, though ideally true
+          rejectUnauthorized: false,
         },
-        connectionTimeout: 10000, // 10s timeout
-      });
+        family: 4, // Force IPv4
+        connectionTimeout: 10000,
+      } as any);
 
       // Send email
       console.log("📤 Sending email to:", to);
@@ -167,8 +168,9 @@ export const emailController = {
           user: gmailUser,
           pass: gmailAppPassword?.replace(/\s/g, ""),
         },
+        family: 4, // Force IPv4
         connectionTimeout: 10000,
-      });
+      } as any);
 
       await transporter.verify();
       console.log("✅ Email connection verified successfully");

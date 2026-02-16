@@ -47,12 +47,12 @@ app.listen(PORT, () => {
       ? `User: ${process.env.GMAIL_USER.substring(0, 3)}***@***`
       : "User: MISSING",
   );
-  console.log(
-    "🔑 Email Password:",
-    process.env.GMAIL_APP_PASSWORD
-      ? `Set (${process.env.GMAIL_APP_PASSWORD.length} chars)`
-      : "MISSING",
-  );
+  // console.log(
+  //   "🔑 Email Password:",
+  //   process.env.GMAIL_APP_PASSWORD
+  //     ? `Set (${process.env.GMAIL_APP_PASSWORD.length} chars)`
+  //     : "MISSING",
+  // );
 });
 
 // MongoDB
