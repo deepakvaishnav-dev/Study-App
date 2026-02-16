@@ -18,7 +18,9 @@ export const emailController = {
       console.log("Gmail User:", gmailUser ? "✅ Set" : "❌ Missing");
       console.log(
         "Gmail App Password:",
-        gmailAppPassword ? "✅ Set" : "❌ Missing",
+        gmailAppPassword
+          ? `✅ Set (Length: ${gmailAppPassword.length})`
+          : "❌ Missing",
       );
 
       if (!gmailUser || !gmailAppPassword) {
@@ -93,11 +95,11 @@ export const emailController = {
       console.log("📮 Creating email transporter...");
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 465,
-        secure: true, // Use SSL
+        port: 587,
+        secure: false, // Use STARTTLS
         auth: {
           user: gmailUser,
-          pass: gmailAppPassword,
+          pass: gmailAppPassword?.replace(/\s/g, ""), // Strip spaces
         },
         // Force IPv4 for Render compatibility
         family: 4,
@@ -129,7 +131,9 @@ export const emailController = {
       console.error("❌ Error sending email:");
       console.error("Error name:", error.name);
       console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      // console.error("Error stack:", error.stack); // Reduce noise
       res.status(500).json({
         error: "Failed to send email",
         details: error.message,
