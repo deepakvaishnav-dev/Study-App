@@ -128,6 +128,7 @@ export const emailController = {
         message: "Email sent successfully",
       });
     } catch (error: any) {
+      console.error("❌ Error sending:", JSON.stringify(error));
       console.error("❌ Error sending email:");
       console.error("Error name:", error.name);
       console.error("Error message:", error.message);
