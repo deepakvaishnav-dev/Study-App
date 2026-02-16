@@ -93,15 +93,19 @@ export const emailController = {
       console.log("📮 Creating email transporter...");
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false, // Use STARTTLS
         auth: {
           user: gmailUser,
           pass: gmailAppPassword,
         },
-        // Force IPv4 to avoid ENETUNREACH errors on Render
-        family: 4,
-      } as any);
+        tls: {
+          rejectUnauthorized: false,
+        },
+        // Force IPv4 DNS resolution
+        dnsTimeout: 30000,
+        connectionTimeout: 30000,
+      });
 
       // Send email
       console.log("📤 Sending email to:", to);
