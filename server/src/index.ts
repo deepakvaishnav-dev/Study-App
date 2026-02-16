@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+
 import authRoutes from "./routes/authRoutes";
 import noteRoutes from "./routes/noteRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
@@ -29,12 +30,20 @@ app.use("/api/gemini", geminiRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Basic Route
-app.get("/", (req, res) => {
-  res.send("StudySync API is running");
+// Health check
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "StudySync API is running",
+  });
 });
 
-// MongoDB Connection
+// Start server FIRST (important for Render)
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+// MongoDB
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/studysync";
 
@@ -42,30 +51,16 @@ const connectDB = async () => {
   try {
     await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,
-      family: 4, // Force IPv4 to avoid Node.js v17+ IPv6 issues with Atlas
+      family: 4,
     });
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB");
   } catch (err: any) {
-    console.error("Failed to connect to MongoDB", err);
-    if (
-      err.message &&
-      (err.message.includes("SSL") || err.message.includes("TLS"))
-    ) {
-      console.error(
-        "⚠️  POSSIBLE CAUSE: Your IP Address might not be whitelisted in MongoDB Atlas or there is a local firewall issue.",
-      );
-    }
-    // Retry logic could be added here, but usually best to fail fast in dev
-    // process.exit(1);
+    console.error("❌ MongoDB connection failed:", err.message);
   }
 };
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-});
+connectDB();
 
 mongoose.connection.on("error", (err) => {
-  console.error("MongoDB connection error:", err);
+  console.error("MongoDB runtime error:", err);
 });
