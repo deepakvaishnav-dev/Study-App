@@ -90,6 +90,7 @@ export const emailController = {
       }
 
       // Create Nodemailer transporter with Gmail
+      // Create Nodemailer transporter with Gmail
       console.log("📮 Creating email transporter...");
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
@@ -102,10 +103,11 @@ export const emailController = {
         tls: {
           rejectUnauthorized: false,
         },
-        // Force IPv4 DNS resolution
+        // Force IPv4 for Render compatibility
+        family: 4,
         dnsTimeout: 30000,
         connectionTimeout: 30000,
-      });
+      } as any);
 
       // Send email
       console.log("📤 Sending email to:", to);
