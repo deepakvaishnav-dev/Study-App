@@ -1,12 +1,11 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noImplicitAny": false
+  },
   "exclude": [
     "node_modules",
-    "dist",
-    "src/tests/**/*",
-    "**/*.test.ts",
     "src/tests",
-    "src/scripts/**/*",
-    "src/scripts"
-  ],
+    "**/*.test.ts"
+  ]
 }
