@@ -92,24 +92,15 @@ export const emailController = {
       }
 
       // Create Nodemailer transporter with Gmail
-      console.log("📮 Creating email transporter...");
+      // Create Nodemailer transporter with Gmail Service (handles ports/secure automatically)
+      console.log("📮 Creating email transporter (service: gmail)...");
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Use STARTTLS
+        service: "gmail",
         auth: {
           user: gmailUser,
           pass: gmailAppPassword?.replace(/\s/g, ""), // Strip spaces
         },
-        // Force IPv4 for Render compatibility
-        family: 4,
-        // Add detailed logging and increased timeouts
-        logger: true,
-        debug: true,
-        connectionTimeout: 60000, // 60s
-        greetingTimeout: 30000, // 30s
-        socketTimeout: 60000, // 60s
-      } as any);
+      });
 
       // Send email
       console.log("📤 Sending email to:", to);
@@ -142,6 +133,52 @@ export const emailController = {
       }
 
       res.status(500).json({
+        error: errorMessage,
+        details: error.message,
+        code: error.code,
+      });
+    }
+  },
+
+  verifyConnection: async (req: Request, res: Response) => {
+    try {
+      const gmailUser = process.env.GMAIL_USER;
+      const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+
+      if (!gmailUser || !gmailAppPassword) {
+        return res.status(500).json({
+          success: false,
+          message: "Credentials missing in environment variables",
+        });
+      }
+
+      console.log("🔍 Verifying email connection...");
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: gmailUser,
+          pass: gmailAppPassword?.replace(/\s/g, ""),
+        },
+      });
+
+      await transporter.verify();
+      console.log("✅ Email connection verified successfully");
+
+      return res.status(200).json({
+        success: true,
+        message: "Server is ready to take our messages",
+        user: gmailUser,
+      });
+    } catch (error: any) {
+      console.error("❌ Verification failed:", error);
+
+      let errorMessage = "Verification failed";
+      if (error.code === "EAUTH" || error.responseCode === 535) {
+        errorMessage = "Authentication failed: Check email and app password";
+      }
+
+      return res.status(500).json({
+        success: false,
         error: errorMessage,
         details: error.message,
         code: error.code,
