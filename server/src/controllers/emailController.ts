@@ -90,23 +90,23 @@ export const emailController = {
       }
 
       // Create Nodemailer transporter with Gmail
-      // Create Nodemailer transporter with Gmail
       console.log("📮 Creating email transporter...");
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Use STARTTLS
+        port: 465,
+        secure: true, // Use SSL
         auth: {
           user: gmailUser,
           pass: gmailAppPassword,
         },
-        tls: {
-          rejectUnauthorized: false,
-        },
         // Force IPv4 for Render compatibility
         family: 4,
-        dnsTimeout: 30000,
-        connectionTimeout: 30000,
+        // Add detailed logging and increased timeouts
+        logger: true,
+        debug: true,
+        connectionTimeout: 60000, // 60s
+        greetingTimeout: 30000, // 30s
+        socketTimeout: 60000, // 60s
       } as any);
 
       // Send email
