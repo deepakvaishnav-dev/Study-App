@@ -1,4 +1,15 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "src/tests/**/*", "**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/tests/**/*",
+    "**/*.test.ts",
+    "src/tests",
+    "src/scripts/**/*",
+    "src/scripts"
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
 }
