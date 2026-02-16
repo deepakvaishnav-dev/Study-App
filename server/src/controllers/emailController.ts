@@ -92,12 +92,16 @@ export const emailController = {
       // Create Nodemailer transporter with Gmail
       console.log("📮 Creating email transporter...");
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: {
           user: gmailUser,
           pass: gmailAppPassword,
         },
-      });
+        // Force IPv4 to avoid ENETUNREACH errors on Render
+        family: 4,
+      } as any);
 
       // Send email
       console.log("📤 Sending email to:", to);
