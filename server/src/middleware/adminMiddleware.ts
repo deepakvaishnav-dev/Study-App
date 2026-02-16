@@ -11,13 +11,16 @@ export const admin = async (
   next: NextFunction,
 ) => {
   try {
-    // req.user is populated by auth middleware (which should run before this)
-    if (!req.user || !req.user.id) {
+    // req.user is populated by auth middleware
+    // Payload structure is { user: { id: ... } } based on authController
+    const userId = req.user?.user?.id || req.user?.id;
+
+    if (!userId) {
       res.status(401).json({ message: "Not authorized, no token" });
       return;
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(userId);
 
     if (user && user.isAdmin) {
       next();
