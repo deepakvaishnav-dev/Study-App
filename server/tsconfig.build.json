@@ -9,7 +9,4 @@
     "src/scripts/**/*",
     "src/scripts"
   ],
-  "compilerOptions": {
-    "jsx": "react-jsx"
-  }
 }
