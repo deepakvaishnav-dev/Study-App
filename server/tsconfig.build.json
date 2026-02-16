@@ -10,8 +10,6 @@
     "src/tests/**/*",
     "**/*.test.ts",
     "src/scripts",
-    "src/scripts/**/*",
-    "src/email-services",
-    "src/email-services/**/*"
+    "src/scripts/**/*"
   ]
 }
