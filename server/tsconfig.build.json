@@ -5,7 +5,13 @@
   },
   "exclude": [
     "node_modules",
+    "dist",
     "src/tests",
-    "**/*.test.ts"
+    "src/tests/**/*",
+    "**/*.test.ts",
+    "src/scripts",
+    "src/scripts/**/*",
+    "src/email-services",
+    "src/email-services/**/*"
   ]
 }
