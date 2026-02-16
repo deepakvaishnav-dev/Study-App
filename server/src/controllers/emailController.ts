@@ -135,9 +135,16 @@ export const emailController = {
       console.error("Error name:", error.name);
       console.error("Error message:", error.message);
       // console.error("Error stack:", error.stack); // Reduce noise
+
+      let errorMessage = "Failed to send email";
+      if (error.code === "EAUTH" || error.responseCode === 535) {
+        errorMessage = "Authentication failed: Check email and app password";
+      }
+
       res.status(500).json({
-        error: "Failed to send email",
+        error: errorMessage,
         details: error.message,
+        code: error.code,
       });
     }
   },

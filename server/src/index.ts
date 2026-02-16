@@ -41,6 +41,18 @@ app.get("/", (_req, res) => {
 // Start server FIRST (important for Render)
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(
+    "📧 Email Config:",
+    process.env.GMAIL_USER
+      ? `User: ${process.env.GMAIL_USER.substring(0, 3)}***@***`
+      : "User: MISSING",
+  );
+  console.log(
+    "🔑 Email Password:",
+    process.env.GMAIL_APP_PASSWORD
+      ? `Set (${process.env.GMAIL_APP_PASSWORD.length} chars)`
+      : "MISSING",
+  );
 });
 
 // MongoDB
