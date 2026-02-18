@@ -131,13 +131,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           )}
         </div>
 
-        {/* Floating Stats */}
+        {/* Feature Highlights */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto animate-fade-in-up animation-delay-600 px-4">
           {[
-            { value: "50K+", label: "Active Students" },
-            { value: "1M+", label: "Tests Generated" },
-            { value: "95%", label: "Success Rate" },
-            { value: "4.9★", label: "User Rating" },
+            { value: "AI", label: "Powered Tests" },
+            { value: "📊", label: "Progress Analytics" },
+            { value: "📝", label: "Smart Notes" },
+            { value: "🔥", label: "Study Streaks" },
           ].map((stat, index) => (
             <div
               key={index}

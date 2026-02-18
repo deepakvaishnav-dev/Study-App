@@ -6,7 +6,6 @@ import {
   Calendar,
   BrainCircuit,
   UserCircle,
-  GraduationCap,
   X,
   Shield,
 } from "lucide-react";
@@ -63,7 +62,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-6 border-b border-white/20">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <GraduationCap className="w-8 h-8" />
+              <img
+                src="/studysync.png"
+                alt="StudySync Logo"
+                className="w-9 h-9 rounded-xl object-cover shadow-md"
+              />
               StudySync
             </h1>
             {/* Close button for mobile */}

@@ -9,22 +9,29 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      includeAssets: ["favicon.ico", "studysync.png"],
       manifest: {
         name: "StudySync",
         short_name: "StudySync",
         description: "A comprehensive study planner application",
-        theme_color: "#ffffff",
+        theme_color: "#6366f1",
+        background_color: "#ffffff",
         icons: [
           {
-            src: "pwa-192x192.png",
+            src: "studysync.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512x512.png",
+            src: "studysync.png",
             sizes: "512x512",
             type: "image/png",
+          },
+          {
+            src: "studysync.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },

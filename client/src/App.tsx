@@ -260,9 +260,16 @@ const App: React.FC = () => {
             >
               <Menu className="w-7 h-7 text-gray-700" />
             </button>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              StudySync
-            </h1>
+            <div className="flex items-center gap-2">
+              <img
+                src="/studysync.png"
+                alt="StudySync"
+                className="w-8 h-8 rounded-lg object-cover shadow-sm"
+              />
+              <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                StudySync
+              </h1>
+            </div>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
 

@@ -3,7 +3,6 @@ import {
   BookOpen,
   Clock,
   CheckCircle2,
-  TrendingUp,
   Plus,
   Target,
   Zap,
@@ -31,8 +30,6 @@ import {
   RadialBarChart,
   RadialBar,
   PolarAngleAxis,
-  BarChart,
-  Bar,
 } from "recharts";
 import { ViewMode } from "../../types";
 import { userDataService } from "../../services/userData";
@@ -53,7 +50,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
       dailyHistory: [],
     },
   );
-  const [chartData, setChartData] = React.useState<any[]>([]);
+  // Initialize with default week days so chart axes show immediately
+  const getDefaultWeekData = () => {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return days.map((name) => ({ name, hours: 0 }));
+  };
+  const [chartData, setChartData] = React.useState<any[]>(getDefaultWeekData());
   const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month">(
     "week",
   );
@@ -84,8 +86,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
   };
 
   // Weekly goal progress
-  // Weekly goal progress
-  // Weekly goal progress
   const weeklyGoal = 20;
   // Use current stats for weekly progress as a simplification,
   // or we could filter stats.dailyHistory if populated.
@@ -105,12 +105,10 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
   const statCards = [
     {
       label: "Study Hours",
-      value: `${(stats.totalStudyMinutes / 60).toFixed(1)}`,
+      value: `${(stats.totalStudyMinutes / 60).toFixed(1)}h`,
       icon: Clock,
       color: "#6366f1",
       lightColor: "#eef2ff",
-      change: "+12%",
-      isPositive: true,
     },
     {
       label: "Notes Created",
@@ -118,8 +116,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
       icon: BookOpen,
       color: "#8b5cf6",
       lightColor: "#f3e8ff",
-      change: "+8%",
-      isPositive: true,
     },
     {
       label: "Tests Taken",
@@ -127,17 +123,13 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
       icon: Target,
       color: "#10b981",
       lightColor: "#d1fae5",
-      change: "+5%",
-      isPositive: true,
     },
     {
-      label: "Current Streak",
+      label: "Day Streak",
       value: stats.streakDays.toString(),
       icon: Flame,
       color: "#f59e0b",
       lightColor: "#fef3c7",
-      change: `${stats.streakDays} days`,
-      isPositive: true,
     },
   ];
 
@@ -176,33 +168,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
     },
   ];
 
-  const upcomingTasks = [
-    {
-      title: "Calculus Problem Set",
-      subject: "Mathematics",
-      time: "Today, 4:00 PM",
-      priority: "high",
-      icon: "📐",
-      color: "#ef4444",
-    },
-    {
-      title: "Physics Lab Report",
-      subject: "Physics",
-      time: "Tomorrow, 10:00 AM",
-      priority: "medium",
-      icon: "⚛️",
-      color: "#f59e0b",
-    },
-    {
-      title: "Chemistry Notes Review",
-      subject: "Chemistry",
-      time: "Tomorrow, 2:00 PM",
-      priority: "low",
-      icon: "🧪",
-      color: "#10b981",
-    },
-  ];
-
   const quickActions = [
     {
       icon: Plus,
@@ -213,33 +178,26 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
     {
       icon: BookMarked,
       label: "My Notes",
-      action: () => {},
+      action: () => setView(ViewMode.Notes),
       color: "#8b5cf6",
     },
     {
       icon: Target,
       label: "Take Test",
-      action: () => {},
+      action: () => setView(ViewMode.Assessment),
       color: "#10b981",
     },
     {
       icon: Calendar,
       label: "Schedule",
-      action: () => {},
+      action: () => setView(ViewMode.Planner),
       color: "#3b82f6",
     },
   ];
 
-  const subjectData = [
-    { subject: "Math", hours: 8, color: "#6366f1" },
-    { subject: "Science", hours: 6, color: "#8b5cf6" },
-    { subject: "History", hours: 4, color: "#10b981" },
-    { subject: "English", hours: 5, color: "#f59e0b" },
-  ];
-
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-8">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
         {/* Hero Header */}
         <div className="relative overflow-hidden bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl">
           {/* Decorative Elements */}
@@ -304,12 +262,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                       style={{ color: stat.color }}
                     />
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-lg">
-                    <TrendingUp className="w-3 h-3 text-green-600" />
-                    <span className="text-xs font-bold text-green-600">
-                      {stat.change}
-                    </span>
-                  </div>
                 </div>
 
                 <h3 className="text-4xl font-black text-gray-900 mb-1">
@@ -366,9 +318,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
               </div>
             </div>
 
-            <div className="h-64 sm:h-80">
-              <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-                <AreaChart data={chartData}>
+            <div className="relative h-56 sm:h-64 md:h-80">
+              <ResponsiveContainer width="100%" height="100%" minHeight={180}>
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 5, right: 10, left: -10, bottom: 0 }}
+                >
                   <defs>
                     <linearGradient id="colorStudy" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
@@ -379,12 +334,15 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                   <XAxis
                     dataKey="name"
                     stroke="#94a3b8"
-                    style={{ fontSize: "12px", fontWeight: "600" }}
+                    tick={{ fontSize: 11, fontWeight: 600 }}
                     interval={0}
                   />
                   <YAxis
                     stroke="#94a3b8"
-                    style={{ fontSize: "12px", fontWeight: "600" }}
+                    tick={{ fontSize: 11, fontWeight: 600 }}
+                    domain={[0, (dataMax: number) => Math.max(dataMax, 1)]}
+                    tickFormatter={(v) => `${v}h`}
+                    width={35}
                   />
                   <Tooltip
                     contentStyle={{
@@ -393,6 +351,10 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                       borderRadius: "12px",
                       boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
                     }}
+                    formatter={(value: number | undefined) => [
+                      `${value ?? 0}h`,
+                      "Study Hours",
+                    ]}
                   />
                   <Area
                     type="monotone"
@@ -401,9 +363,25 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorStudy)"
+                    dot={{ fill: "#6366f1", strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: "#6366f1" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
+              {/* No data overlay */}
+              {chartData.every((d) => d.hours === 0) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 text-center shadow-sm border border-gray-100">
+                    <Activity className="w-8 h-8 text-indigo-300 mx-auto mb-2" />
+                    <p className="text-gray-500 font-semibold text-sm">
+                      No study sessions yet
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Start a session to see your progress!
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -485,30 +463,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
               </div>
             </div>
 
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={subjectData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    dataKey="subject"
-                    stroke="#94a3b8"
-                    style={{ fontSize: "12px", fontWeight: "600" }}
-                  />
-                  <YAxis
-                    stroke="#94a3b8"
-                    style={{ fontSize: "12px", fontWeight: "600" }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "none",
-                      borderRadius: "12px",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Bar dataKey="hours" fill="#6366f1" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col items-center justify-center h-48 text-center">
+              <BarChart3 className="w-12 h-12 text-gray-300 mb-3" />
+              <p className="text-gray-500 font-semibold">No subject data yet</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Start study sessions to track time per subject
+              </p>
             </div>
           </div>
 
@@ -610,47 +570,32 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                     Upcoming Tasks
                   </h3>
                   <p className="text-gray-500 text-sm">
-                    {upcomingTasks.length} pending
+                    Your study planner tasks
                   </p>
                 </div>
               </div>
-              <button className="text-indigo-600 font-bold text-sm hover:text-indigo-700 flex items-center gap-1">
-                View All <ArrowRight className="w-4 h-4" />
+              <button
+                onClick={() => setView(ViewMode.Planner)}
+                className="text-indigo-600 font-bold text-sm hover:text-indigo-700 flex items-center gap-1"
+              >
+                View Planner <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              {upcomingTasks.map((task, i) => (
-                <div
-                  key={i}
-                  className="group flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all cursor-pointer bg-linear-to-r from-white to-gray-50 hover:to-white"
-                >
-                  <div className="text-3xl">{task.icon}</div>
-
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                      {task.title}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-500 font-medium">
-                        {task.subject}
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {task.time}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold text-white`}
-                    style={{ backgroundColor: task.color }}
-                  >
-                    {task.priority.toUpperCase()}
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Calendar className="w-12 h-12 text-gray-300 mb-3" />
+              <p className="text-gray-500 font-semibold">
+                No tasks scheduled yet
+              </p>
+              <p className="text-gray-400 text-sm mt-1">
+                Go to the Planner to add study sessions
+              </p>
+              <button
+                onClick={() => setView(ViewMode.Planner)}
+                className="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Open Planner
+              </button>
             </div>
           </div>
 
@@ -700,7 +645,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
         </div>
 
         {/* Productivity Score Banner */}
-        <div className="relative overflow-hidden bg-linear-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-10 shadow-2xl">
+        <div className="relative overflow-hidden bg-linear-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
 
@@ -716,26 +661,30 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                 You're in the top 10% of learners this week!
               </p>
 
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-3 sm:gap-6">
                 <div>
-                  <div className="text-3xl font-black text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-white">
                     {Math.round(productivityScore)}
                   </div>
                   <div className="text-white/80 text-sm">Score</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-black text-white">2-4 PM</div>
+                  <div className="text-2xl sm:text-3xl font-black text-white">
+                    2-4 PM
+                  </div>
                   <div className="text-white/80 text-sm">Peak Time</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-black text-white">+15%</div>
+                  <div className="text-2xl sm:text-3xl font-black text-white">
+                    +15%
+                  </div>
                   <div className="text-white/80 text-sm">Growth</div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <Medal className="w-24 h-24 text-yellow-300" />
+            <div className="flex items-center gap-4 justify-center md:justify-end">
+              <Medal className="w-16 h-16 sm:w-24 sm:h-24 text-yellow-300" />
             </div>
           </div>
         </div>

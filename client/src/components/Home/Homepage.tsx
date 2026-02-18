@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen, LogIn, Menu, X } from "lucide-react";
+import { LogIn, Menu, X } from "lucide-react";
 import HeroSection from "./HeroSection";
 import FeaturesSection from "./FeaturesSection";
 import StatisticsSection from "./StatisticsSection";
@@ -65,8 +65,12 @@ const Homepage: React.FC<HomepageProps> = ({
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo with Premium Effects */}
             <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shine-effect overflow-hidden">
-                <BookOpen className="text-white w-5 h-5 sm:w-6 sm:h-6 relative z-10" />
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <img
+                  src="/studysync.png"
+                  alt="StudySync Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:via-purple-600 group-hover:to-pink-600 transition-all duration-300">
                 StudySync

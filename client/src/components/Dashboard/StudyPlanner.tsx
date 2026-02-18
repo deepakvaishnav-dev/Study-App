@@ -232,9 +232,9 @@ const StudyPlanner: React.FC<StudyPlannerProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
         <header className="animate-slideUp">
-          <div className="flex items-start justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-6xl font-bold  mb-3 tracking-tight">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-3 tracking-tight">
                 Study Planner
               </h1>
               <p className="text-lg text-slate-600 max-w-xl">
@@ -260,7 +260,7 @@ const StudyPlanner: React.FC<StudyPlannerProps> = ({
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 stagger-1 animate-slideUp">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 stagger-1 animate-slideUp">
             <div className="glass p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
