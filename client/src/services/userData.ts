@@ -60,12 +60,33 @@ export const userDataService = {
     window.dispatchEvent(new Event("user-stats-updated"));
   },
 
-  getChartData: async (_days = 7) => {
+  getChartData: async (days = 7) => {
     try {
-      await userDataService.getStats();
+      const stats = await userDataService.getStats();
+      const history = stats.dailyHistory || [];
 
-      return [];
-    } catch {
+      // Sort history by date ascending just in case
+      history.sort((a, b) => a.date.localeCompare(b.date));
+
+      // Filter for requested days
+      // Since history is simplified to last 30 days in backend, we just slice the end
+      const relevantHistory = history.slice(-days);
+
+      return relevantHistory.map((day) => {
+        const dateObj = new Date(day.date);
+        return {
+          name:
+            days === 7
+              ? dateObj.toLocaleDateString("en-US", { weekday: "short" })
+              : dateObj.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                }),
+          hours: Number((day.studyMinutes / 60).toFixed(1)),
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
       return [];
     }
   },
