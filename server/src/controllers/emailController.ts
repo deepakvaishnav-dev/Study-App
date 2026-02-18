@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+// @ts-ignore
+import MailComposer from "nodemailer/lib/mail-composer";
+import { google } from "googleapis";
 import { render } from "@react-email/render";
 import {
   LoginNotificationEmail,
@@ -104,50 +107,58 @@ export const emailController = {
           .json({ error: "Missing HTML content or valid template data" });
       }
 
-      // Create Nodemailer transporter with Gmail OAuth2
-      // Using explicit host/port and forcing IPv4 to avoid Render timeout issues
-      console.log("📮 Creating email transporter (SMTP:587 with OAuth2)...");
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          type: "OAuth2",
-          user: GMAIL_USER,
-          clientId: GMAIL_CLIENT_ID,
-          clientSecret: GMAIL_CLIENT_SECRET,
-          refreshToken: GMAIL_REFRESH_TOKEN,
-        },
-        family: 4, // Force IPv4 to avoid IPv6 issues on Render
-      } as any);
+      // OAuth2 Setup for Google APIs
+      const oAuth2Client = new google.auth.OAuth2(
+        GMAIL_CLIENT_ID,
+        GMAIL_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground", // Redirect URI
+      );
 
-      // Send email
-      console.log("📤 Sending email to:", to);
-      const info = await transporter.sendMail({
+      oAuth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
+
+      // Create a new MailComposer instance to generate the raw email
+      // We use nodemailer just for formatting, NOT for sending via SMTP
+      const mailComposer = new MailComposer({
         from: `StudySync <${GMAIL_USER}>`,
         to: to,
         subject: subject,
         html: html,
       });
 
-      console.log("✅ Email sent successfully:", info.messageId);
+      const message = await mailComposer.compile().build();
+      const rawMessage = Buffer.from(message)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+
+      console.log("📤 Sending email via Gmail API...");
+
+      const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+      const response = await gmail.users.messages.send({
+        userId: "me",
+        requestBody: {
+          raw: rawMessage,
+        },
+      });
+
+      console.log("✅ Email sent successfully:", response.data.id);
 
       return res.status(200).json({
         success: true,
-        messageId: info.messageId,
+        messageId: response.data.id,
         message: "Email sent successfully",
       });
     } catch (error: any) {
-      console.error("❌ Error sending:", JSON.stringify(error));
-      console.error("❌ Error sending email:");
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      // console.error("Error stack:", error.stack); // Reduce noise
+      console.error("❌ Error sending via Gmail API:", error);
+      console.error("❌ Error details:", error.message);
+      if (error.response) {
+        console.error("❌ API Response Error:", error.response.data);
+      }
 
       let errorMessage = "Failed to send email";
-      if (error.code === "EAUTH" || error.responseCode === 535) {
+      if (error.code === 401 || error.code === 403) {
         errorMessage = "Authentication failed: Check OAuth credentials";
       }
 
@@ -180,34 +191,33 @@ export const emailController = {
         });
       }
 
-      console.log("🔍 Verifying email connection (OAuth2)...");
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          type: "OAuth2",
-          user: GMAIL_USER,
-          clientId: GMAIL_CLIENT_ID,
-          clientSecret: GMAIL_CLIENT_SECRET,
-          refreshToken: GMAIL_REFRESH_TOKEN,
-        },
-        family: 4, // Force IPv4
-      } as any);
+      console.log("🔍 Verifying Gmail API connection...");
 
-      await transporter.verify();
-      console.log("✅ Email connection verified successfully");
+      const oAuth2Client = new google.auth.OAuth2(
+        GMAIL_CLIENT_ID,
+        GMAIL_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground",
+      );
+
+      oAuth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
+
+      const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+      // Check profile to verify credentials
+      await gmail.users.getProfile({ userId: "me" });
+
+      console.log("✅ Gmail API connection verified successfully");
 
       return res.status(200).json({
         success: true,
-        message: "Server is ready to take our messages",
+        message: "Server is ready to send emails via Gmail API",
         user: GMAIL_USER,
       });
     } catch (error: any) {
       console.error("❌ Verification failed:", error);
 
       let errorMessage = "Verification failed";
-      if (error.code === "EAUTH" || error.responseCode === 535) {
+      if (error.code === 401 || error.code === 403) {
         errorMessage = "Authentication failed: Check OAuth credentials";
       }
 

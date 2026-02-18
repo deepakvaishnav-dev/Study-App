@@ -1,13 +1,16 @@
 import nodemailer from "nodemailer";
+// @ts-ignore
+import MailComposer from "nodemailer/lib/mail-composer";
 import dotenv from "dotenv";
 import path from "path";
+import { google } from "googleapis";
 import { render } from "@react-email/render";
 import { TestResultEmail } from "../email-services/EmailTemplates";
 
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 const debugEmail = async () => {
-  console.log("🔍 Starting Email Debug Script...");
+  console.log("🔍 Starting Email Debug Script (Gmail API)...");
 
   // 1. Check Credentials
   const {
@@ -66,37 +69,53 @@ const debugEmail = async () => {
     process.exit(1);
   }
 
-  // 3. Test Email Sending
-  console.log("3️⃣ Testing Email Sending (OAuth2)...");
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: GMAIL_USER,
-      clientId: GMAIL_CLIENT_ID,
-      clientSecret: GMAIL_CLIENT_SECRET,
-      refreshToken: GMAIL_REFRESH_TOKEN,
-    },
-    debug: true, // Enable debug logs
-    logger: true, // Enable logger
-  } as any);
+  // 3. Test Email Sending via Gmail API
+  console.log("3️⃣ Testing Email Sending (Gmail API)...");
 
   try {
-    await transporter.verify();
-    console.log("   ✅ Transporter Verified (Connection OK)");
+    const oAuth2Client = new google.auth.OAuth2(
+      GMAIL_CLIENT_ID,
+      GMAIL_CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground",
+    );
 
-    const info = await transporter.sendMail({
+    oAuth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
+
+    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+    // Verify connection first
+    await gmail.users.getProfile({ userId: "me" });
+    console.log("   ✅ Gmail API Connection Verified");
+
+    const mailComposer = new MailComposer({
       from: `Debug <${GMAIL_USER}>`,
       to: GMAIL_USER, // Send to self
-      subject: "Debug Email - Template & Send",
+      subject: "Debug Email (Gmail API) - Template & Send",
       html: htmlContent,
     });
-    console.log("✅ Email sent successfully:", info.messageId);
+
+    const message = await mailComposer.compile().build();
+    const rawMessage = Buffer.from(message)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    console.log("   📤 Sending...");
+    const response = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: rawMessage,
+      },
+    });
+
+    console.log("✅ Email sent successfully:", response.data.id);
   } catch (error: any) {
     console.error("❌ Sending Failed:");
-    console.error("   Code:", error.code);
-    console.error("   Response:", error.response);
     console.error("   Message:", error.message);
+    if (error.response) {
+      console.error("   API Response:", error.response.data);
+    }
   }
 };
 

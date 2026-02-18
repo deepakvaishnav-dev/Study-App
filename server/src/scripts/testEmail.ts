@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
+// @ts-ignore
+import MailComposer from "nodemailer/lib/mail-composer";
 import dotenv from "dotenv";
 import path from "path";
+import { google } from "googleapis";
 
 // Load environment variables from .env file
 dotenv.config({ path: path.join(__dirname, "../../.env") });
@@ -13,7 +16,7 @@ const testEmail = async () => {
     GMAIL_REFRESH_TOKEN,
   } = process.env;
 
-  console.log("Testing Email Sending (OAuth2)...");
+  console.log("Testing Email Sending (Gmail API)...");
   console.log("User:", GMAIL_USER || "Missing");
   console.log("Client ID:", GMAIL_CLIENT_ID ? "Set" : "Missing");
 
@@ -27,27 +30,45 @@ const testEmail = async () => {
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: GMAIL_USER,
-      clientId: GMAIL_CLIENT_ID,
-      clientSecret: GMAIL_CLIENT_SECRET,
-      refreshToken: GMAIL_REFRESH_TOKEN,
-    },
-  } as any);
-
   try {
-    const info = await transporter.sendMail({
+    const oAuth2Client = new google.auth.OAuth2(
+      GMAIL_CLIENT_ID,
+      GMAIL_CLIENT_SECRET,
+      "https://developers.google.com/oauthplayground",
+    );
+
+    oAuth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
+
+    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+    const mailComposer = new MailComposer({
       from: `Test <${GMAIL_USER}>`,
       to: GMAIL_USER, // Send to self
-      subject: "Test Email from Script (OAuth2)",
-      text: "If you see this, nodemailer is working with Gmail OAuth2.",
+      subject: "Test Email from Script (Gmail API)",
+      text: "If you see this, we are successfully using the Gmail API directly!",
     });
-    console.log("✅ Email sent successfully:", info.messageId);
+
+    const message = await mailComposer.compile().build();
+    const rawMessage = Buffer.from(message)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    console.log("📤 Sending...");
+    const response = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: rawMessage,
+      },
+    });
+
+    console.log("✅ Email sent successfully:", response.data.id);
   } catch (error: any) {
-    console.error("❌ Error sending email:", error);
+    console.error("❌ Error sending email:", error.message);
+    if (error.response) {
+      console.error("❌ API Response:", error.response.data);
+    }
   }
 };
 
