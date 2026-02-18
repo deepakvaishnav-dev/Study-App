@@ -9,7 +9,8 @@ const exchangeCode = async (code: string) => {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
   // This MUST match the redirect URI used in generateAuthUrl.ts
-  const redirectUri = "https://study-app-server-224a.onrender.com/auth/google";
+  const redirectUri =
+    "https://study-app-server-224a.onrender.com/auth/google/callback";
 
   if (!clientId || !clientSecret) {
     console.error("❌ Client ID or Secret missing in .env");

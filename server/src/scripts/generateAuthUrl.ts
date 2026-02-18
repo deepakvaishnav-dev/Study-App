@@ -13,7 +13,8 @@ const generateUrl = () => {
   }
 
   // Common Redirect URIs to try
-  const redirectUri = "https://study-app-server-224a.onrender.com/auth/google";
+  const redirectUri =
+    "https://study-app-server-224a.onrender.com/auth/google/callback";
   // Alternate: "http://localhost" if the above fails
 
   const scope = "https://mail.google.com/";
