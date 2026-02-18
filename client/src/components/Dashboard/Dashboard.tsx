@@ -380,6 +380,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                     dataKey="name"
                     stroke="#94a3b8"
                     style={{ fontSize: "12px", fontWeight: "600" }}
+                    interval={0}
                   />
                   <YAxis
                     stroke="#94a3b8"

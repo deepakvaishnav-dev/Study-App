@@ -65,26 +65,58 @@ export const userDataService = {
       const stats = await userDataService.getStats();
       const history = stats.dailyHistory || [];
 
-      // Sort history by date ascending just in case
-      history.sort((a, b) => a.date.localeCompare(b.date));
-
-      // Filter for requested days
-      // Since history is simplified to last 30 days in backend, we just slice the end
-      const relevantHistory = history.slice(-days);
-
-      return relevantHistory.map((day) => {
-        const dateObj = new Date(day.date);
-        return {
-          name:
-            days === 7
-              ? dateObj.toLocaleDateString("en-US", { weekday: "short" })
-              : dateObj.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                }),
-          hours: Number((day.studyMinutes / 60).toFixed(1)),
-        };
+      // Create a map for quick lookup
+      const historyMap = new Map<string, number>();
+      history.forEach((day) => {
+        // Ensure date string is YYYY-MM-DD
+        const dateStr = new Date(day.date).toISOString().split("T")[0];
+        historyMap.set(dateStr, day.studyMinutes);
       });
+
+      const chartData = [];
+
+      if (days === 7) {
+        // Current Calendar Week (Mon - Sun)
+        const curr = new Date(); // get current date
+
+        // Note: if today is Sunday (0), this logic needs adjustment.
+        // If Sunday (0), we want the *previous* Monday, which is -6 days away.
+        // Standard JS: 0=Sun, 1=Mon...6=Sat.
+        // improved logic:
+        const day = curr.getDay();
+        const diff = curr.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+
+        const monday = new Date(curr.setDate(diff));
+
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          const dateStr = d.toISOString().split("T")[0];
+
+          chartData.push({
+            name: d.toLocaleDateString("en-US", { weekday: "short" }),
+            hours: Number(((historyMap.get(dateStr) || 0) / 60).toFixed(1)),
+            fullDate: dateStr, // helpful for debugging or tooltips
+          });
+        }
+      } else {
+        // Last 30 Days
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split("T")[0];
+
+          chartData.push({
+            name: d.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            }),
+            hours: Number(((historyMap.get(dateStr) || 0) / 60).toFixed(1)),
+          });
+        }
+      }
+
+      return chartData;
     } catch (error) {
       console.error("Error fetching chart data:", error);
       return [];
