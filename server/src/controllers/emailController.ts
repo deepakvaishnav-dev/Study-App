@@ -105,9 +105,12 @@ export const emailController = {
       }
 
       // Create Nodemailer transporter with Gmail OAuth2
+      // Using explicit host/port and forcing IPv4 to avoid Render timeout issues
       console.log("📮 Creating email transporter (SMTP:587 with OAuth2)...");
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
         auth: {
           type: "OAuth2",
           user: GMAIL_USER,
@@ -115,6 +118,7 @@ export const emailController = {
           clientSecret: GMAIL_CLIENT_SECRET,
           refreshToken: GMAIL_REFRESH_TOKEN,
         },
+        family: 4, // Force IPv4 to avoid IPv6 issues on Render
       } as any);
 
       // Send email
@@ -178,7 +182,9 @@ export const emailController = {
 
       console.log("🔍 Verifying email connection (OAuth2)...");
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
         auth: {
           type: "OAuth2",
           user: GMAIL_USER,
@@ -186,6 +192,7 @@ export const emailController = {
           clientSecret: GMAIL_CLIENT_SECRET,
           refreshToken: GMAIL_REFRESH_TOKEN,
         },
+        family: 4, // Force IPv4
       } as any);
 
       await transporter.verify();
