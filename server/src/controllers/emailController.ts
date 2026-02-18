@@ -11,23 +11,36 @@ export const emailController = {
   sendEmail: async (req: Request, res: Response) => {
     try {
       // Get Gmail credentials from environment variables
-      const gmailUser = process.env.GMAIL_USER;
-      const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+      const {
+        GMAIL_USER,
+        GMAIL_CLIENT_ID,
+        GMAIL_CLIENT_SECRET,
+        GMAIL_REFRESH_TOKEN,
+      } = process.env;
 
       console.log("📧 Email send request received");
-      console.log("Gmail User:", gmailUser ? "✅ Set" : "❌ Missing");
+      console.log("Gmail User:", GMAIL_USER ? "✅ Set" : "❌ Missing");
+      console.log("Client ID:", GMAIL_CLIENT_ID ? "✅ Set" : "❌ Missing");
       console.log(
-        "Gmail App Password:",
-        gmailAppPassword
-          ? `✅ Set (Length: ${gmailAppPassword.length})`
-          : "❌ Missing",
+        "Client Secret:",
+        GMAIL_CLIENT_SECRET ? "✅ Set" : "❌ Missing",
+      );
+      console.log(
+        "Refresh Token:",
+        GMAIL_REFRESH_TOKEN ? "✅ Set" : "❌ Missing",
       );
 
-      if (!gmailUser || !gmailAppPassword) {
-        console.error("❌ Gmail credentials not configured");
+      if (
+        !GMAIL_USER ||
+        !GMAIL_CLIENT_ID ||
+        !GMAIL_CLIENT_SECRET ||
+        !GMAIL_REFRESH_TOKEN
+      ) {
+        console.error("❌ Gmail OAuth credentials not configured");
         return res.status(500).json({
           error: "Gmail credentials not configured",
-          message: "Please set GMAIL_USER and GMAIL_APP_PASSWORD in .env file",
+          message:
+            "Please set GMAIL_USER, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, and GMAIL_REFRESH_TOKEN in .env file",
         });
       }
 
@@ -91,28 +104,23 @@ export const emailController = {
           .json({ error: "Missing HTML content or valid template data" });
       }
 
-      // Create Nodemailer transporter with Gmail
-      // Create Nodemailer transporter with Gmail Service (handles ports/secure automatically)
-      console.log("📮 Creating email transporter (SMTP:587)...");
+      // Create Nodemailer transporter with Gmail OAuth2
+      console.log("📮 Creating email transporter (SMTP:587 with OAuth2)...");
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Must be false for STARTTLS
+        service: "gmail",
         auth: {
-          user: gmailUser,
-          pass: gmailAppPassword?.replace(/\s/g, ""),
+          type: "OAuth2",
+          user: GMAIL_USER,
+          clientId: GMAIL_CLIENT_ID,
+          clientSecret: GMAIL_CLIENT_SECRET,
+          refreshToken: GMAIL_REFRESH_TOKEN,
         },
-        tls: {
-          rejectUnauthorized: false,
-        },
-        family: 4, // Force IPv4
-        connectionTimeout: 10000,
       } as any);
 
       // Send email
       console.log("📤 Sending email to:", to);
       const info = await transporter.sendMail({
-        from: `StudySync <${gmailUser}>`,
+        from: `StudySync <${GMAIL_USER}>`,
         to: to,
         subject: subject,
         html: html,
@@ -136,7 +144,7 @@ export const emailController = {
 
       let errorMessage = "Failed to send email";
       if (error.code === "EAUTH" || error.responseCode === 535) {
-        errorMessage = "Authentication failed: Check email and app password";
+        errorMessage = "Authentication failed: Check OAuth credentials";
       }
 
       res.status(500).json({
@@ -149,27 +157,35 @@ export const emailController = {
 
   verifyConnection: async (req: Request, res: Response) => {
     try {
-      const gmailUser = process.env.GMAIL_USER;
-      const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+      const {
+        GMAIL_USER,
+        GMAIL_CLIENT_ID,
+        GMAIL_CLIENT_SECRET,
+        GMAIL_REFRESH_TOKEN,
+      } = process.env;
 
-      if (!gmailUser || !gmailAppPassword) {
+      if (
+        !GMAIL_USER ||
+        !GMAIL_CLIENT_ID ||
+        !GMAIL_CLIENT_SECRET ||
+        !GMAIL_REFRESH_TOKEN
+      ) {
         return res.status(500).json({
           success: false,
-          message: "Credentials missing in environment variables",
+          message: "OAuth credentials missing in environment variables",
         });
       }
 
-      console.log("🔍 Verifying email connection (SMTP:587)...");
+      console.log("🔍 Verifying email connection (OAuth2)...");
       const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        service: "gmail",
         auth: {
-          user: gmailUser,
-          pass: gmailAppPassword?.replace(/\s/g, ""),
+          type: "OAuth2",
+          user: GMAIL_USER,
+          clientId: GMAIL_CLIENT_ID,
+          clientSecret: GMAIL_CLIENT_SECRET,
+          refreshToken: GMAIL_REFRESH_TOKEN,
         },
-        family: 4, // Force IPv4
-        connectionTimeout: 10000,
       } as any);
 
       await transporter.verify();
@@ -178,14 +194,14 @@ export const emailController = {
       return res.status(200).json({
         success: true,
         message: "Server is ready to take our messages",
-        user: gmailUser,
+        user: GMAIL_USER,
       });
     } catch (error: any) {
       console.error("❌ Verification failed:", error);
 
       let errorMessage = "Verification failed";
       if (error.code === "EAUTH" || error.responseCode === 535) {
-        errorMessage = "Authentication failed: Check email and app password";
+        errorMessage = "Authentication failed: Check OAuth credentials";
       }
 
       return res.status(500).json({

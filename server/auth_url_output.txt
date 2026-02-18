@@ -1,0 +1,13 @@
+﻿[dotenv@17.2.4] injecting env (7) from .env -- tip: ΓÜÖ∩╕Å  override existing env vars with { override: true }
+
+====== COPY AND PASTE THIS URL IN YOUR BROWSER ======
+
+https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fmail.google.com%2F&response_type=code&client_id=786125928672-o2hmgvpajtt64bdie6uuik5dbhoosg1l.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&prompt=consent
+
+========================================================
+
+1. Login with your Google Account.
+2. Allow permissions.
+3. You will be redirected to the OAuth Playground.
+4. Copy the 'Authorization Code' from the step 2 box logic (or url query param).
+5. Paste that code here in the chat.

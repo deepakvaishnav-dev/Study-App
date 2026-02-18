@@ -10,16 +10,29 @@ const debugEmail = async () => {
   console.log("🔍 Starting Email Debug Script...");
 
   // 1. Check Credentials
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  const {
+    GMAIL_USER,
+    GMAIL_CLIENT_ID,
+    GMAIL_CLIENT_SECRET,
+    GMAIL_REFRESH_TOKEN,
+  } = process.env;
 
   console.log("1️⃣ Checking Credentials...");
-  console.log(`   User: ${gmailUser}`);
+  console.log(`   User: ${GMAIL_USER}`);
+  console.log(`   Client ID: ${GMAIL_CLIENT_ID ? "Present" : "MISSING"}`);
   console.log(
-    `   Password: ${gmailAppPassword ? `Present (${gmailAppPassword.length} chars)` : "MISSING"}`,
+    `   Client Secret: ${GMAIL_CLIENT_SECRET ? "Present" : "MISSING"}`,
+  );
+  console.log(
+    `   Refresh Token: ${GMAIL_REFRESH_TOKEN ? "Present" : "MISSING"}`,
   );
 
-  if (!gmailUser || !gmailAppPassword) {
+  if (
+    !GMAIL_USER ||
+    !GMAIL_CLIENT_ID ||
+    !GMAIL_CLIENT_SECRET ||
+    !GMAIL_REFRESH_TOKEN
+  ) {
     console.error("❌ Credentials missing. Aborting.");
     process.exit(1);
   }
@@ -54,26 +67,27 @@ const debugEmail = async () => {
   }
 
   // 3. Test Email Sending
-  console.log("3️⃣ Testing Email Sending (Port 587)...");
+  console.log("3️⃣ Testing Email Sending (OAuth2)...");
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    service: "gmail",
     auth: {
-      user: gmailUser,
-      pass: gmailAppPassword.replace(/\s/g, ""),
+      type: "OAuth2",
+      user: GMAIL_USER,
+      clientId: GMAIL_CLIENT_ID,
+      clientSecret: GMAIL_CLIENT_SECRET,
+      refreshToken: GMAIL_REFRESH_TOKEN,
     },
     debug: true, // Enable debug logs
     logger: true, // Enable logger
-  });
+  } as any);
 
   try {
     await transporter.verify();
     console.log("   ✅ Transporter Verified (Connection OK)");
 
     const info = await transporter.sendMail({
-      from: `Debug <${gmailUser}>`,
-      to: gmailUser, // Send to self
+      from: `Debug <${GMAIL_USER}>`,
+      to: GMAIL_USER, // Send to self
       subject: "Debug Email - Template & Send",
       html: htmlContent,
     });

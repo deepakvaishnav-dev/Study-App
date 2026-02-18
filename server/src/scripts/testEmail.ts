@@ -6,40 +6,44 @@ import path from "path";
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 const testEmail = async () => {
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+  const {
+    GMAIL_USER,
+    GMAIL_CLIENT_ID,
+    GMAIL_CLIENT_SECRET,
+    GMAIL_REFRESH_TOKEN,
+  } = process.env;
 
-  console.log("Testing Email Sending...");
-  console.log("User:", gmailUser);
-  console.log(
-    "Password length:",
-    gmailAppPassword ? gmailAppPassword.length : 0,
-  );
+  console.log("Testing Email Sending (OAuth2)...");
+  console.log("User:", GMAIL_USER || "Missing");
+  console.log("Client ID:", GMAIL_CLIENT_ID ? "Set" : "Missing");
 
-  if (!gmailUser || !gmailAppPassword) {
-    console.error("❌ Credentials missing in .env");
+  if (
+    !GMAIL_USER ||
+    !GMAIL_CLIENT_ID ||
+    !GMAIL_CLIENT_SECRET ||
+    !GMAIL_REFRESH_TOKEN
+  ) {
+    console.error("❌ OAuth Credentials missing in .env");
     return;
   }
 
-  // Strip spaces from app password just in case
-  const cleanPassword = gmailAppPassword.replace(/\s/g, "");
-
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    service: "gmail",
     auth: {
-      user: gmailUser,
-      pass: cleanPassword, // Try with cleaned password
+      type: "OAuth2",
+      user: GMAIL_USER,
+      clientId: GMAIL_CLIENT_ID,
+      clientSecret: GMAIL_CLIENT_SECRET,
+      refreshToken: GMAIL_REFRESH_TOKEN,
     },
-  });
+  } as any);
 
   try {
     const info = await transporter.sendMail({
-      from: `Test <${gmailUser}>`,
-      to: gmailUser, // Send to self
-      subject: "Test Email from Script",
-      text: "If you see this, nodemailer is working with the provided credentials.",
+      from: `Test <${GMAIL_USER}>`,
+      to: GMAIL_USER, // Send to self
+      subject: "Test Email from Script (OAuth2)",
+      text: "If you see this, nodemailer is working with Gmail OAuth2.",
     });
     console.log("✅ Email sent successfully:", info.messageId);
   } catch (error: any) {
