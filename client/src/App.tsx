@@ -20,6 +20,7 @@ import { sessionService } from "./services/sessionService";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserList from "./components/Admin/UserList";
 import UserDetail from "./components/Admin/UserDetail";
+import PricingPage from "./components/Pricing/PricingPage";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => void;
@@ -171,6 +172,8 @@ const App: React.FC = () => {
         return <Profile onLogout={handleLogout} />;
       case ViewMode.Assessment:
         return <SelfAssessment />;
+      case ViewMode.Pricing:
+        return <PricingPage />;
       case ViewMode.AdminDashboard:
         return <AdminDashboard setView={setCurrentView} />;
       case ViewMode.AdminUsers:

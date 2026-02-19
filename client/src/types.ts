@@ -62,6 +62,7 @@ export const ViewMode = {
   Planner: "planner",
   Assessment: "assessment",
   Profile: "profile",
+  Pricing: "pricing",
   AdminDashboard: "admin_dashboard",
   AdminUsers: "admin_users",
   AdminUserDetail: "admin_user_detail",

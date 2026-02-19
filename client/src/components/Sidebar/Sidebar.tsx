@@ -8,6 +8,7 @@ import {
   UserCircle,
   X,
   Shield,
+  Crown,
 } from "lucide-react";
 import { ViewMode } from "../../types";
 
@@ -26,12 +27,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   setIsOpen,
   isAdmin = false,
 }) => {
-  const menuItems: { id: ViewMode; label: string; icon: any }[] = [
+  const menuItems: {
+    id: ViewMode;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[] = [
     { id: ViewMode.Dashboard, label: "Dashboard", icon: LayoutDashboard },
     { id: ViewMode.Notes, label: "My Notes", icon: BookOpen },
     { id: ViewMode.Papers, label: "Question Papers", icon: FileText },
     { id: ViewMode.Planner, label: "Study Planner", icon: Calendar },
     { id: ViewMode.Assessment, label: "Self Assessment", icon: BrainCircuit },
+    { id: ViewMode.Pricing, label: "Pricing & Plans", icon: Crown },
     { id: ViewMode.Profile, label: "Profile", icon: UserCircle },
   ];
 
@@ -108,7 +114,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-white border border-white/20">
             <p className="text-xs font-medium opacity-80 mb-1">PRO PLAN</p>
             <p className="text-sm font-bold mb-3">Unlimited AI Notes</p>
-            <button className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+            <button
+              onClick={() => {
+                setView(ViewMode.Pricing);
+                if (window.innerWidth < 1024) setIsOpen(false);
+              }}
+              className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-1"
+            >
+              <Crown className="w-3 h-3" />
               Upgrade Now
             </button>
           </div>
