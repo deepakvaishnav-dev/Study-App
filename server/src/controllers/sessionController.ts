@@ -63,3 +63,27 @@ export const updateSession = async (req: AuthRequest, res: Response) => {
     res.status(500).send("Server Error");
   }
 };
+
+export const deleteSession = async (req: AuthRequest, res: Response) => {
+  try {
+    const session = await StudySession.findById(req.params.id);
+
+    if (!session) {
+      res.status(404).json({ msg: "Session not found" });
+      return;
+    }
+
+    // Make sure user owns session
+    if (session.userId.toString() !== req.user.user.id) {
+      res.status(401).json({ msg: "Not authorized" });
+      return;
+    }
+
+    await StudySession.findByIdAndDelete(req.params.id);
+
+    res.json({ msg: "Session removed" });
+  } catch (err) {
+    console.error((err as Error).message);
+    res.status(500).send("Server Error");
+  }
+};
