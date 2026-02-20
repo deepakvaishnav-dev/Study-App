@@ -21,7 +21,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ setView }) => {
         setStats({
           totalUsers: data.length,
           activeUsers: data.length, // Placeholder logic
-          totalTests: 0, // Placeholder
+          totalTests: data.reduce(
+            (acc: number, user: { testsTaken?: number }) =>
+              acc + (user.testsTaken || 0),
+            0,
+          ),
         });
       } catch (error) {
         console.error("Failed to fetch admin data", error);
@@ -68,7 +72,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ setView }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Reports</p>
-              <h3 className="text-2xl font-bold">--</h3>
+              <h3 className="text-2xl font-bold">{stats.totalTests}</h3>
             </div>
           </div>
         </div>

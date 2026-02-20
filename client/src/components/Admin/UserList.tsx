@@ -9,7 +9,17 @@ interface UserListProps {
 }
 
 const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
-  const [users, setUsers] = useState<any[]>([]); // Using any for now to include _id
+  const [users, setUsers] = useState<
+    {
+      _id: string;
+      name: string;
+      email: string;
+      grade?: string;
+      joinedDate: string;
+      testsTaken?: number;
+      averageScore?: number;
+    }[]
+  >([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -63,13 +73,19 @@ const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">
                   Name
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">
                   Email
                 </th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">
                   Grade
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase text-center">
+                  Tests Taken
+                </th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase text-center">
+                  Avg Score
+                </th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">
                   Joined
                 </th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">
@@ -81,7 +97,7 @@ const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={7}
                     className="px-6 py-4 text-center text-gray-500"
                   >
                     Loading users...
@@ -90,7 +106,7 @@ const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
               ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={7}
                     className="px-6 py-4 text-center text-gray-500"
                   >
                     No users found.
@@ -107,13 +123,33 @@ const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
                         {user.name}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{user.email}</td>
+                    <td className="px-6 py-4 text-gray-600 hidden md:table-cell">
+                      {user.email}
+                    </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full">
                         {user.grade || "N/A"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    <td className="px-6 py-4 text-center font-bold text-gray-700">
+                      {user.testsTaken || 0}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
+                          (user.averageScore || 0) >= 80
+                            ? "bg-green-100 text-green-700"
+                            : (user.averageScore || 0) >= 50
+                              ? "bg-blue-100 text-blue-700"
+                              : (user.averageScore || 0) > 0
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {user.averageScore || 0}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500 hidden sm:table-cell">
                       {new Date(user.joinedDate).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
@@ -121,7 +157,7 @@ const UserList: React.FC<UserListProps> = ({ setView, setSelectedUser }) => {
                         onClick={() => handleUserClick(user._id)}
                         className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
                       >
-                        View Details <ChevronRight className="w-4 h-4" />
+                        Details <ChevronRight className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>

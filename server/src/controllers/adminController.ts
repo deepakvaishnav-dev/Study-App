@@ -8,7 +8,30 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const users = await User.find({})
       .select("-password")
       .sort({ joinedDate: -1 });
-    res.json(users);
+
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const testResults = await TestResult.find({ userId: user._id });
+        const totalTests = testResults.length;
+        const averageScore =
+          totalTests > 0
+            ? Math.round(
+                testResults.reduce(
+                  (acc, curr) => acc + (curr.percentage || 0),
+                  0,
+                ) / totalTests,
+              )
+            : 0;
+
+        return {
+          ...user.toObject(),
+          testsTaken: totalTests,
+          averageScore: averageScore,
+        };
+      }),
+    );
+
+    res.json(usersWithStats);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import Note from "../models/Note";
 import StudySession from "../models/StudySession";
 import TestResult from "../models/TestResult";
 import { AuthRequest } from "../middleware/auth";
@@ -8,7 +7,7 @@ export const getUserStats = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user.user.id;
 
-    const totalNotes = await Note.countDocuments({ userId });
+    const totalNotes = 0; // Legacy Notes API removed, this is handled on the frontend now
     const totalTests = await TestResult.countDocuments({ userId });
 
     const sessions = await StudySession.find({ userId });

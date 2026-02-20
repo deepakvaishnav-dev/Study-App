@@ -298,15 +298,19 @@ const SelfAssessment: React.FC = () => {
         };
       });
 
-      await reportService.sendTestResult(profile.name, {
+      const resultDetails = {
         subject: assessment.subject,
         score: results.score,
         total: results.total,
         percentage: String(results.percentage),
         weakTopics: results.weakTopics || [],
         timeTaken: formatTime(timeElapsed),
+        totalQuestions: results.total,
         questions: detailedQuestions,
-      });
+      };
+
+      await reportService.saveTestResultToDB(resultDetails);
+      await reportService.sendTestResult(profile.name, resultDetails);
     }
 
     setAssessment(null);

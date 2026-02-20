@@ -192,17 +192,25 @@ const NotesModule: React.FC<NotesModuleProps> = ({
     setActiveDropdown(null);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingNote) {
-      const updatedNotes = notes.map((n) =>
-        n.id === editingNote.id
-          ? { ...n, title: editTitle, content: editContent }
-          : n,
-      );
-      setNotes(updatedNotes);
-      setEditingNote(null);
-      setEditTitle("");
-      setEditContent("");
+      try {
+        const updatedFromServer = await noteService.update(editingNote.id, {
+          title: editTitle,
+          content: editContent,
+        });
+
+        const updatedNotes = notes.map((n) =>
+          n.id === editingNote.id ? updatedFromServer : n,
+        );
+        setNotes(updatedNotes);
+        setEditingNote(null);
+        setEditTitle("");
+        setEditContent("");
+      } catch (err) {
+        console.error("Failed to save note edit", err);
+        setError("Failed to save note edit");
+      }
     }
   };
 
@@ -226,11 +234,23 @@ const NotesModule: React.FC<NotesModuleProps> = ({
     }
   };
 
-  const handleToggleBookmark = (noteId: string) => {
-    const updatedNotes = notes.map((n) =>
-      n.id === noteId ? { ...n, isBookmarked: !n.isBookmarked } : n,
-    );
-    setNotes(updatedNotes);
+  const handleToggleBookmark = async (noteId: string) => {
+    const noteToUpdate = notes.find((n) => n.id === noteId);
+    if (!noteToUpdate) return;
+
+    try {
+      const updatedFromServer = await noteService.update(noteId, {
+        isBookmarked: !noteToUpdate.isBookmarked,
+      });
+
+      const updatedNotes = notes.map((n) =>
+        n.id === noteId ? updatedFromServer : n,
+      );
+      setNotes(updatedNotes);
+    } catch (err) {
+      console.error("Failed to toggle bookmark", err);
+      // Optional: show error message
+    }
   };
 
   const toggleDropdown = (noteId: string, e: React.MouseEvent) => {

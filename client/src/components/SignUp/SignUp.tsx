@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { UserProfile } from "../../types";
 import {
   BookOpen,
   ArrowRight,
@@ -112,7 +113,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onLoginClick }) => {
       const { token, user } = response.data;
 
       // Construct full profile for local storage (backend might not store grade/parentEmail yet)
-      const profile = {
+      const profile: UserProfile = {
         name: user.name || name,
         email: user.email || email,
         grade,
@@ -127,8 +128,17 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onLoginClick }) => {
       reportService.sendLoginSuccessEmail(email, name, parentEmail);
 
       onSignUp();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosError = err as {
+          response?: { data?: { message?: string } };
+        };
+        setError(axiosError.response?.data?.message || "Registration failed");
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registration failed");
+      }
     } finally {
       setIsLoading(false);
     }

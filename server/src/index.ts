@@ -10,7 +10,6 @@ if (dns.setDefaultResultOrder) {
 }
 
 import authRoutes from "./routes/authRoutes";
-import noteRoutes from "./routes/noteRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
 import reportRoutes from "./routes/reportRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -28,7 +27,6 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/notes", noteRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/user", userRoutes);
@@ -53,12 +51,7 @@ app.listen(PORT, () => {
       ? `User: ${process.env.GMAIL_USER.substring(0, 3)}***@***`
       : "User: MISSING",
   );
-  // console.log(
-  //   "🔑 Email Password:",
-  //   process.env.GMAIL_APP_PASSWORD
-  //     ? `Set (${process.env.GMAIL_APP_PASSWORD.length} chars)`
-  //     : "MISSING",
-  // );
+  
 });
 
 // MongoDB

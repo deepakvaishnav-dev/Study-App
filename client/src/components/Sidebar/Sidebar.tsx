@@ -37,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: ViewMode.Papers, label: "Question Papers", icon: FileText },
     { id: ViewMode.Planner, label: "Study Planner", icon: Calendar },
     { id: ViewMode.Assessment, label: "Self Assessment", icon: BrainCircuit },
+    { id: ViewMode.TestReports, label: "Test Reports", icon: FileText },
     { id: ViewMode.Pricing, label: "Pricing & Plans", icon: Crown },
     { id: ViewMode.Profile, label: "Profile", icon: UserCircle },
   ];

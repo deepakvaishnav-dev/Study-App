@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { UserProfile } from "../../types";
 import {
   BookOpen,
   ArrowRight,
@@ -37,19 +38,27 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignUpClick }) => {
       const { token, user } = response.data;
 
       // Save token and profile
-      // Note: Backend might not return all profile fields like grade/parentEmail yet
-      const profile = {
+      const profile: UserProfile = {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        // We'll leave other fields undefined for now or fetch them if backend supports it
+        grade: user.grade || "Not Set", // specific grade or default
         joinedDate: new Date().toLocaleDateString(),
       };
-      userDataService.login(profile as any, token); // Type casting if profile is incomplete
+      userDataService.login(profile, token);
 
       onLogin();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosError = err as {
+          response?: { data?: { message?: string } };
+        };
+        setError(axiosError.response?.data?.message || "Login failed");
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Login failed");
+      }
     } finally {
       setIsLoading(false);
     }

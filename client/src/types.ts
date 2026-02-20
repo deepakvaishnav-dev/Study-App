@@ -61,6 +61,7 @@ export const ViewMode = {
   Papers: "papers",
   Planner: "planner",
   Assessment: "assessment",
+  TestReports: "test_reports",
   Profile: "profile",
   Pricing: "pricing",
   AdminDashboard: "admin_dashboard",

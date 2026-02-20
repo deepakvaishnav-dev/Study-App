@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { ViewMode } from "./types";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import Navbar from "./components/Home/Navbar";
+import FooterSection from "./components/Home/FooterSection";
 import type { Note, StudySession, UserProfile } from "./types";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -20,6 +23,7 @@ import { sessionService } from "./services/sessionService";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserList from "./components/Admin/UserList";
 import UserDetail from "./components/Admin/UserDetail";
+import TestReports from "./components/Dashboard/TestReports";
 import PricingPage from "./components/Pricing/PricingPage";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -28,10 +32,10 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.Dashboard);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [readingNote, setReadingNote] = useState<Note | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   // PWA Install State
@@ -71,7 +75,6 @@ const App: React.FC = () => {
     userDataService.getUserProfile(),
   );
   const isAuthenticated = !!userProfile;
-  const [showSignUp, setShowSignUp] = useState(false);
 
   // Listen for auth changes (login/logout from other components)
   React.useEffect(() => {
@@ -93,14 +96,14 @@ const App: React.FC = () => {
   const handleLogin = () => {
     setUserProfile(userDataService.getUserProfile());
     setCurrentView(ViewMode.Dashboard);
+    navigate("/");
   };
 
   const handleLogout = () => {
     userDataService.logout();
     setUserProfile(null);
     setCurrentView(ViewMode.Dashboard);
-    setShowLogin(false); // Go back to Homepage on logout
-    setShowSignUp(false);
+    navigate("/");
   };
 
   // Load initial state from localStorage or fallback to empty array
@@ -172,6 +175,8 @@ const App: React.FC = () => {
         return <Profile onLogout={handleLogout} />;
       case ViewMode.Assessment:
         return <SelfAssessment />;
+      case ViewMode.TestReports:
+        return <TestReports />;
       case ViewMode.Pricing:
         return <PricingPage />;
       case ViewMode.AdminDashboard:
@@ -201,86 +206,100 @@ const App: React.FC = () => {
   };
 
   if (!isAuthenticated) {
-    if (showSignUp) {
-      return (
-        <SignUp
-          onSignUp={handleLogin}
-          onLoginClick={() => {
-            setShowSignUp(false);
-            setShowLogin(true);
-          }}
-        />
-      );
-    }
-    if (showLogin) {
-      return (
-        <Login
-          onLogin={handleLogin}
-          onSignUpClick={() => {
-            setShowLogin(false);
-            setShowSignUp(true);
-          }}
-        />
-      );
-    }
     return (
-      <Homepage
-        onLoginClick={() => setShowLogin(true)}
-        onInstallClick={handleInstallClick}
-        showInstallButton={showInstallButton}
-      />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Homepage
+              onLoginClick={() => navigate("/login")}
+              onInstallClick={handleInstallClick}
+              showInstallButton={showInstallButton}
+            />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <>
+              <Navbar />
+              <div className="pt-16">
+                <Login
+                  onLogin={handleLogin}
+                  onSignUpClick={() => navigate("/signup")}
+                />
+              </div>
+            </>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <>
+              <Navbar />
+              <div className="pt-16">
+                <SignUp
+                  onSignUp={handleLogin}
+                  onLoginClick={() => navigate("/login")}
+                />
+              </div>
+            </>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <>
+              <Navbar />
+              <div className="pt-16 sm:pt-20">
+                <PricingPage />
+              </div>
+              <FooterSection />
+            </>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     );
   }
 
   return (
     <div className="min-h-screen flex bg-gray-50 pb-safe overflow-x-hidden">
-      {!isAuthenticated ? (
-        <Login
-          onLogin={handleLogin}
-          onSignUpClick={() => {
-            setShowLogin(false);
-            setShowSignUp(true);
-          }}
-        />
-      ) : (
-        <>
-          <Sidebar
-            currentView={currentView}
-            setView={setCurrentView}
-            isOpen={isSidebarOpen}
-            setIsOpen={setIsSidebarOpen}
-            isAdmin={
-              userProfile?.isAdmin ||
-              userProfile?.email === "studysyncrudrani@gmail.com"
-            }
+      <Sidebar
+        currentView={currentView}
+        setView={setCurrentView}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+        isAdmin={
+          userProfile?.isAdmin ||
+          userProfile?.email === "studysyncrudrani@gmail.com"
+        }
+      />
+
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 px-4 py-3 flex items-center justify-between pt-safe">
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-3 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <Menu className="w-7 h-7 text-gray-700" />
+        </button>
+        <div className="flex items-center gap-2">
+          <img
+            src="/studysync.png"
+            alt="StudySync"
+            className="w-8 h-8 rounded-lg object-cover shadow-sm"
           />
+          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            StudySync
+          </h1>
+        </div>
+        <div className="w-10" /> {/* Spacer for centering */}
+      </div>
 
-          {/* Mobile Header */}
-          <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 px-4 py-3 flex items-center justify-between pt-safe">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-3 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Menu className="w-7 h-7 text-gray-700" />
-            </button>
-            <div className="flex items-center gap-2">
-              <img
-                src="/studysync.png"
-                alt="StudySync"
-                className="w-8 h-8 rounded-lg object-cover shadow-sm"
-              />
-              <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                StudySync
-              </h1>
-            </div>
-            <div className="w-10" /> {/* Spacer for centering */}
-          </div>
-
-          <main className="flex-1 lg:ml-64 p-3 sm:p-4 md:p-8 lg:p-12 pt-20 lg:pt-8">
-            {renderContent()}
-          </main>
-        </>
-      )}
+      <main className="flex-1 lg:ml-64 p-3 sm:p-4 md:p-8 lg:p-12 pt-20 lg:pt-8">
+        {renderContent()}
+      </main>
 
       {/* Fullscreen Reading Mode overlay */}
       {readingNote && (

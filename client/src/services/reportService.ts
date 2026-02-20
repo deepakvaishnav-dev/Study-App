@@ -20,9 +20,16 @@ export const reportService = {
       });
 
       // console.log(`Email sent successfully to ${toEmail}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to send email:", error);
-      if (error.response) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response
+      ) {
         console.error(
           "Server Error Details:",
           JSON.stringify(error.response.data, null, 2),
@@ -163,7 +170,6 @@ export const reportService = {
     });
   },
 
-  // New: Send Test Result Report
   sendTestResult: async (studentName: string, testDetails: TestDetails) => {
     const profile = userDataService.getUserProfile();
 
@@ -191,6 +197,26 @@ export const reportService = {
           details: testDetails,
         },
       });
+    }
+  },
+
+  // Save Test Result to Backend DB
+  saveTestResultToDB: async (testDetails: TestDetails) => {
+    try {
+      await api.post("/reports", testDetails);
+    } catch (error: unknown) {
+      console.error("Failed to save test result to database:", error);
+    }
+  },
+
+  // Fetch all Test Results for the current user
+  getUserTestReports: async () => {
+    try {
+      const response = await api.get("/reports");
+      return response.data; // List of TestResult objects
+    } catch (error) {
+      console.error("Failed to fetch user test reports:", error);
+      return [];
     }
   },
 };
