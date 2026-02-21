@@ -203,11 +203,11 @@ const QuestionPaperGenerator: React.FC = () => {
       score,
       total,
       totalQuestions: total,
-      percentage: String(percentage),
+      percentage: percentage,
       weakTopics,
       timeTaken,
       questions: detailedQuestions,
-      detailedReport: detailedQuestions,
+      detailedReport: JSON.stringify(detailedQuestions),
     };
 
     try {

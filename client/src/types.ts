@@ -75,7 +75,7 @@ export interface TestDetails {
   subject: string;
   score: number;
   total: number;
-  percentage: string;
+  percentage: number | string;
   weakTopics: string[];
   totalQuestions?: number;
   timeTaken?: string;
@@ -86,11 +86,13 @@ export interface TestDetails {
     isCorrect: boolean;
     explanation?: string;
   }>;
-  detailedReport?: Array<{
-    text: string;
-    userAnswer: string;
-    correctAnswer: string;
-    isCorrect: boolean;
-    explanation?: string;
-  }>;
+  detailedReport?:
+    | string
+    | Array<{
+        text: string;
+        userAnswer: string;
+        correctAnswer: string;
+        isCorrect: boolean;
+        explanation?: string;
+      }>;
 }
