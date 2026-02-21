@@ -86,4 +86,11 @@ export interface TestDetails {
     isCorrect: boolean;
     explanation?: string;
   }>;
+  detailedReport?: Array<{
+    text: string;
+    userAnswer: string;
+    correctAnswer: string;
+    isCorrect: boolean;
+    explanation?: string;
+  }>;
 }

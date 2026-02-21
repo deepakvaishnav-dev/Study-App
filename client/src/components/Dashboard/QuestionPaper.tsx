@@ -198,18 +198,28 @@ const QuestionPaperGenerator: React.FC = () => {
 
     // console.log("[QuestionPaper] Detailed Questions:", detailedQuestions);
 
+    const testDetails = {
+      subject: currentPaper.subject,
+      score,
+      total,
+      totalQuestions: total,
+      percentage: String(percentage),
+      weakTopics,
+      timeTaken,
+      questions: detailedQuestions,
+      detailedReport: detailedQuestions,
+    };
+
+    try {
+      await reportService.saveTestResultToDB(testDetails);
+    } catch (error) {
+      console.error("Failed to save test result:", error);
+    }
+
     // Send Email
     await reportService.sendTestResult(
       userDataService.getUserProfile()?.name || "Student",
-      {
-        subject: currentPaper.subject,
-        score,
-        total,
-        percentage: String(percentage),
-        weakTopics,
-        timeTaken,
-        questions: detailedQuestions,
-      },
+      testDetails,
     );
   };
 
