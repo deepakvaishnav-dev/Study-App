@@ -396,6 +396,24 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onLoginClick }) => {
                 )}
               </button>
 
+              <div className="text-center mt-4 text-sm text-gray-500">
+                By signing up, you agree to our{" "}
+                <a
+                  href="/terms-of-service"
+                  className="text-indigo-600 hover:underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy-policy"
+                  className="text-indigo-600 hover:underline"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </div>
+
               <div className="text-center mt-6">
                 <p className="text-gray-600">
                   Already have an account?{" "}

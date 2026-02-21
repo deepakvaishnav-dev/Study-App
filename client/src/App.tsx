@@ -25,6 +25,18 @@ import UserList from "./components/Admin/UserList";
 import UserDetail from "./components/Admin/UserDetail";
 import TestReports from "./components/Dashboard/TestReports";
 import PricingPage from "./components/Pricing/PricingPage";
+import PrivacyPolicy from "./components/Legal/PrivacyPolicy";
+import TermsOfService from "./components/Legal/TermsOfService";
+import CookiePolicy from "./components/Legal/CookiePolicy";
+import Licenses from "./components/Legal/Licenses";
+import AboutUs from "./components/Company/AboutUs";
+import Blog from "./components/Company/Blog";
+import Careers from "./components/Company/Careers";
+import Contact from "./components/Company/Contact";
+import Documentation from "./components/Resources/Documentation";
+import HelpCenter from "./components/Resources/HelpCenter";
+import Community from "./components/Resources/Community";
+import Status from "./components/Resources/Status";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => void;
@@ -258,6 +270,27 @@ const App: React.FC = () => {
             </>
           }
         />
+        <Route
+          path="/privacy-policy"
+          element={
+            <>
+              <PrivacyPolicy />
+            </>
+          }
+        />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/licenses" element={<Licenses />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/contact" element={<Contact />} />
+
+        <Route path="/docs" element={<Documentation />} />
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/status" element={<Status />} />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
